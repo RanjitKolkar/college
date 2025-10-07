@@ -5,7 +5,7 @@ import os
 # -------------------------
 # Streamlit page setup
 # -------------------------
-st.set_page_config(page_title="PU College Financial Model", layout="wide")
+st.set_page_config(page_title="PU College Financial Model-2026", layout="wide")
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
