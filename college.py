@@ -172,7 +172,7 @@ if mode == "Admin Panel":
 # User Dashboard
 # -------------------------
 else:
-    st.markdown("<h2 style='color:#4CAF50;'>📊 PU College Financial Dashboard</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#4CAF50;'>📊 PU College Financial Dashboard 2026</h2>", unsafe_allow_html=True)
 
     income_df = compute_income(income_df)
     expenses_df = compute_expenses(expenses_df)
