@@ -215,4 +215,4 @@ else:
     st.dataframe(proj_fmt)
     st.line_chart(projection_df.set_index("Year")[["Projected Income (₹)", "Projected Expenses (₹)", "Net Projected Balance (₹)"]])
 
-    st.caption("All figures shown in Indian numbering format (₹10,00,000 style).")
+
