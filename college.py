@@ -2,15 +2,18 @@ import streamlit as st
 import pandas as pd
 import os
 
+# -------------------------
+# Streamlit page setup
+# -------------------------
 st.set_page_config(page_title="PU College Financial Model", layout="wide")
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # -------------------------
-# Utility: Indian number format (e.g. 12,34,567)
+# Utility: Indian number format (₹12,34,567)
 # -------------------------
 def fmt_inr(num):
-    """Format number with Indian commas (e.g. 1,23,45,678)."""
+    """Format number with Indian commas (₹1,23,45,678)."""
     if pd.isna(num): return ""
     try:
         num = float(num)
@@ -122,31 +125,29 @@ projection_df = load_df_json("projection", default_projection_df)
 # -------------------------
 # Sidebar Mode
 # -------------------------
-st.sidebar.header("Mode")
+st.sidebar.header("🔧 Mode Selection")
 mode = st.sidebar.radio("Choose Mode", ["Admin Panel", "User Dashboard"])
-# password = st.sidebar.text_input("Admin Password", type="password")
-# is_admin = password == "12"
 
 # -------------------------
 # Admin Panel
 # -------------------------
 if mode == "Admin Panel":
-    st.title("Admin Panel")
+    st.markdown("<h2 style='color:#1f77b4;'>🧮 Admin Panel</h2>", unsafe_allow_html=True)
     st.info("Edit inputs below and click **Save & Recalculate** to update totals.")
 
-    with st.expander("Income", expanded=True):
+    with st.expander("📘 Income", expanded=True):
         income_inputs = st.data_editor(income_df, num_rows="dynamic", use_container_width=True)
 
-    with st.expander("Expenses", expanded=True):
+    with st.expander("📗 Expenses", expanded=True):
         expenses_inputs = st.data_editor(expenses_df, num_rows="dynamic", use_container_width=True)
 
-    with st.expander("Distribution", expanded=True):
+    with st.expander("📙 Distribution", expanded=True):
         distribution_inputs = st.data_editor(distribution_df, num_rows="dynamic", use_container_width=True)
 
-    with st.expander("Projection", expanded=True):
+    with st.expander("📈 Projection (5-Year)", expanded=True):
         projection_inputs = st.data_editor(projection_df, num_rows="dynamic", use_container_width=True)
 
-    if st.button("💾 Save & Recalculate", use_container_width=True):
+    if st.button("💾 Save & Recalculate", use_container_width=True, type="primary"):
         computed_income = compute_income(income_inputs)
         computed_expenses = compute_expenses(expenses_inputs)
         total_income = computed_income["Total (₹)"].sum()
@@ -160,20 +161,18 @@ if mode == "Admin Panel":
         save_df_json(computed_distribution, "distribution")
         save_df_json(computed_projection, "projection")
 
-        st.success(f"Saved ✅ | Net Balance = {fmt_inr(net_balance)}")
+        st.success(f"✅ Data saved successfully! | Net Balance = {fmt_inr(net_balance)}")
 
-        # Display formatted results
-        st.subheader("Summary Totals")
         c1, c2, c3 = st.columns(3)
-        c1.metric("Total Income", fmt_inr(total_income))
-        c2.metric("Total Expenses", fmt_inr(total_expenses))
-        c3.metric("Net Balance", fmt_inr(net_balance))
+        c1.metric("💰 Total Income", fmt_inr(total_income))
+        c2.metric("💸 Total Expenses", fmt_inr(total_expenses))
+        c3.metric("🏦 Net Balance", fmt_inr(net_balance))
 
 # -------------------------
 # User Dashboard
 # -------------------------
 else:
-    st.title("📊 PU College Financial Summary")
+    st.markdown("<h2 style='color:#4CAF50;'>📊 PU College Financial Dashboard</h2>", unsafe_allow_html=True)
 
     income_df = compute_income(income_df)
     expenses_df = compute_expenses(expenses_df)
@@ -184,35 +183,45 @@ else:
     projection_df = compute_projection(projection_df)
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Total Income", fmt_inr(total_income))
-    c2.metric("Total Expenses", fmt_inr(total_expenses))
-    c3.metric("Net Balance", fmt_inr(net_balance))
+    c1.metric("💰 Total Income", fmt_inr(total_income))
+    c2.metric("💸 Total Expenses", fmt_inr(total_expenses))
+    c3.metric("🏦 Net Balance", fmt_inr(net_balance))
 
-    st.divider()
+    st.markdown("<hr>", unsafe_allow_html=True)
 
-    st.subheader("Income")
+    # Income section
+    st.markdown("<h3 style='color:#1f77b4;'>📘 Income Summary</h3>", unsafe_allow_html=True)
     income_fmt = income_df.copy()
     income_fmt["Total (₹)"] = income_fmt["Total (₹)"].map(fmt_inr)
-    st.dataframe(income_fmt)
+    st.dataframe(income_fmt, use_container_width=True)
     st.bar_chart(income_df.set_index("Source")["Total (₹)"])
 
-    st.subheader("Expenses")
+    # Expenses section
+    st.markdown("<h3 style='color:#e74c3c;'>📗 Expense Summary</h3>", unsafe_allow_html=True)
     exp_fmt = expenses_df.copy()
     exp_fmt["Yearly (₹)"] = exp_fmt["Yearly (₹)"].map(fmt_inr)
-    st.dataframe(exp_fmt)
+    st.dataframe(exp_fmt, use_container_width=True)
     st.bar_chart(expenses_df.set_index("Expense Category")["Yearly (₹)"])
 
-    st.subheader("Distribution")
+    # Distribution section
+    st.markdown("<h3 style='color:#f39c12;'>📙 Fund Distribution</h3>", unsafe_allow_html=True)
     dist_fmt = distribution_df.copy()
     dist_fmt["Amount (₹)"] = dist_fmt["Amount (₹)"].map(fmt_inr)
-    st.dataframe(dist_fmt)
+    st.dataframe(dist_fmt, use_container_width=True)
     st.bar_chart(distribution_df.set_index("Head")["Amount (₹)"])
 
-    st.subheader("5-Year Projection")
+    # Projection section
+    st.markdown("<h3 style='color:#16a085;'>📈 5-Year Projection</h3>", unsafe_allow_html=True)
     proj_fmt = projection_df.copy()
     for col in ["Projected Income (₹)", "Projected Expenses (₹)", "Net Projected Balance (₹)"]:
         proj_fmt[col] = proj_fmt[col].map(fmt_inr)
-    st.dataframe(proj_fmt)
-    st.line_chart(projection_df.set_index("Year")[["Projected Income (₹)", "Projected Expenses (₹)", "Net Projected Balance (₹)"]])
 
+    # Highlight "Year" column
+    proj_fmt = proj_fmt.style.set_properties(subset=["Year"], **{'background-color': '#e8f5e9', 'font-weight': 'bold'})
+    st.dataframe(proj_fmt, use_container_width=True)
 
+    st.line_chart(
+        projection_df.set_index("Year")[["Projected Income (₹)", "Projected Expenses (₹)", "Net Projected Balance (₹)"]]
+    )
+
+    st.caption("All amounts shown in Indian numbering format (₹10,00,000).")
